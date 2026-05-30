@@ -11,32 +11,102 @@
 -- Provide a list of all distinct film titles, along with their availability status in the inventory. Include a column indicating 
 -- whether each title is 'Available' or 'NOT available.' Note that there are 42 titles that are not in the inventory, and this 
 -- information can be obtained using a CASE statement combined with IFNULL.
-use sakila;
-select count(distinct(f.film_id))  as num_films, c.name as cat_name from category as c inner join film_category as f using(category_id) group by c.name;
-select s.store_id, c.city, co.country from store as s inner join address as a using(address_id) inner join city as c using(city_id) inner join country as co using(country_id); 
-select s.store_id, sum(p.amount) as total_revenue from store as s inner join staff as st using(store_id) inner join payment as p using(staff_id) group by s.store_id;
-select c.name as film_category, avg(f.length) as average_length from category as c inner join film_category using(category_id) inner join film as f using (film_id) group by c.name;
+USE sakila;
 
-select c.name as film_category, avg(f.length) as average_length from category as c inner join film_category using(category_id) inner join film as f using (film_id) group by c.name order by average_length desc;
-select f.title from film as f inner join inventory using(film_id) inner join rental using (inventory_id) group by f.title order by count(rental.inventory_id) desc limit 10;
-select f.title,i.inventory_id,
-case 
-when r.return_date is null then 'available'
-else 'not available'
-end as availability
- from film as f inner join inventory as i using(film_id) join rental as r using(inventory_id)
-where f.title like 'Academy Dinosaur' and i.store_id=1 order by r.rental_date; --  desc limit 1;
+SELECT 
+	count(distinct(f.film_id))  as num_films, 
+    c.name as cat_name 
+FROM category as c 
+JOIN film_category as f 
+	using(category_id) 
+GROUP BY c.name;
+
+SELECT 
+	s.store_id, 
+    c.city, 
+    co.country 
+FROM store as s 
+INNER JOIN address as a 
+	USING(address_id) 
+INNER JOIN city as c 
+	USING(city_id) 
+INNER JOIN country as co 
+	USING(country_id); 
+
+SELECT
+	s.store_id, 
+    sum(p.amount) as total_revenue 
+FROM store as s 
+INNER JOIN staff as st 
+	USING(store_id) 
+INNER JOIN payment as p 
+	USING(staff_id) 
+GROUP BY s.store_id;
+
+SELECT 
+	c.name as film_category, 
+    avg(f.length) as average_length 
+FROM category as c 
+INNER JOIN film_category 
+	USING(category_id) 
+INNER JOIN film as f 
+	USING (film_id) 
+GROUP BY c.name;
+
+SELECT 
+	c.name as film_category, 
+	avg(f.length) as average_length 
+FROM category as c 
+INNER JOIN film_category 
+	USING(category_id) 
+INNER JOIN film as f 
+	USING (film_id) 
+GROUP BY c.name 
+ORDER BY average_length desc;
+
+SELECT 
+	f.title 
+FROM film as f 
+JOIN inventory 
+	USING(film_id) 
+JOIN rental 
+	USING (inventory_id) 
+GROUP BY f.title 
+ORDER BY count(rental.inventory_id) DESC 
+LIMIT 10;
+
+SELECT 
+	f.title,
+    i.inventory_id,
+CASE 
+WHEN r.return_date IS NULL THEN 'available'
+ELSE 'not available'
+END AS availability
+FROM film as f 
+JOIN inventory as i 
+	USING(film_id) 
+JOIN rental as r 
+	USING(inventory_id)
+WHERE f.title LIKE 'Academy Dinosaur' AND i.store_id=1 
+ORDER BY r.rental_date; --  desc limit 1;
 
 -- Provide a list of all distinct film titles, along with their availability status in the inventory. Include a column indicating 
 -- whether each title is 'Available' or 'NOT available.' Note that there are 42 titles that are not in the inventory, and this 
 -- information can be obtained using a CASE statement combined with IFNULL.
-select distinct(f.title), -- ifnull(i.inventory_id,'not stocked'),
-case 
-when inventory_id in (select inventory_id from sakila.rental where return_date is null) then 'available'
-when isnull(inventory_id) then 'not stocked'
-else 'not available'
-end as availability
- from film as f left join inventory as i using(film_id) join rental as r using(inventory_id);
+SELECT DISTINCT f.title, -- ifnull(i.inventory_id,'not stocked'),
+CASE 
+WHEN inventory_id IN (
+	SELECT inventory_id 
+    FROM sakila.rental 
+    WHERE return_date IS NULL) THEN 'available'
+WHEN isnull(inventory_id) THEN 'not stocked'
+ELSE 'not available'
+END AS availability
+FROM film as f 
+LEFT JOIN inventory as i 
+	USING(film_id) 
+JOIN rental as r 
+	USING(inventory_id);
 
  
 
